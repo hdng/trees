@@ -56,26 +56,50 @@
 #' s <- seed(60, 15, min.branch.length=0, max.branch.length=5, 
 #'           min.trunk.height=0, max.trunk.height=0)
 #' g <- germinate(s, angle=5, trunk.width=10)
-germinate <- function(x, angle=20, trunk.width=20, left='0', right='1', 
-                      plot=TRUE, ...) {
-  if(is(x, 'seed')) {
+#
+# Dec.7,2016: code altered by hdng to allow for germinating tree for clonal evolution
+#
+germinate <- function(x, angle=15, trunk.width=20, left='1', right='2',
+                      left2 = '3', right2 = '4', left3 = '5', right3 = '6',
+                      plot=FALSE, ...) {
+  
+  #if(is(x, 'seed')) {
+    trunk.color = x$branch.colors[1]
+    trunk.node.color = x$node.colors[1]
+    trunk.node.label = x$node.labels[1]
+    trunk.node.text = x$node.texts[1]
+    trunk.text = x$branch.texts[1]
     x <- list(trunk.height=x$length[1],
-              branches=x$branch[-1],
-              lengths=x$length[-1])
-  }
+              branches=x$branches[-1],
+              lengths=x$lengths[-1],
+              branch.colors=x$branch.colors[-1],
+              node.colors=x$node.colors[-1],
+              node.labels=x$node.labels[-1],
+              node.texts=x$node.texts[-1],
+              branch.texts=x$branch.texts[-1])
+  #}
   if ('Y' %in% c(left, right)) 
     stop('"Y" is reserved for the trunk.')
   if (any(nchar(c(left, right))) != 1 | left==right)  
     stop('left and right must be single, distinct alphanumeric characters.')
   x$lengths <- x$lengths[order(x$branches)]
+  x$branch.colors <- x$branch.colors[order(x$branches)]
+  x$node.colors <- x$node.colors[order(x$branches)]
+  x$node.labels <- x$node.labels[order(x$branches)]
+  x$node.texts <- x$node.texts[order(x$branches)]
+  x$branch.texts <- x$branch.texts[order(x$branches)]
   x$branches <- sort(x$branches)
-  x$angles <- sapply(sapply(x$branches, strsplit, ''), function(x) {
+  x$angles <- sapply(sapply(as.character(x$branches), strsplit, ''), function(x) {
     tab <- table(x)
-    sum(c(tab[left]*-angle, tab[right]*angle), na.rm=TRUE)
+    #sum(c(tab[left]*-angle, tab[right]*angle), na.rm=TRUE)
+    sum(c(tab[left]*-angle, tab[right]*angle,
+        tab[left2]*-0.5*angle, tab[right2]*angle*0.2,
+        tab[left3]*-1.5*angle, tab[right3]*angle*1.5
+        ), na.rm=TRUE)
   }, USE.NAMES=FALSE)
   y1 <- x1 <- y0 <- x0 <- rep(NA, length(x$branches))
   for (i in seq_len(length(x$branches))) {
-    if(x$branches[i] %in% c(left, right)) {
+    if(x$branches[i] %in% c(left, right, left2, right2, left3, right3)) {
       x0[i] <- 0
       y0[i] <- x$trunk.height 
     } else {
@@ -91,9 +115,15 @@ germinate <- function(x, angle=20, trunk.width=20, left='0', right='1',
                   depth=ifelse(x$branches=='Y', 0, nchar(x$branches)),
                   length=x$lengths,
                   angles=x$angles, x0, y0, x1, y1,
+                  branch.colors=x$branch.colors,
+                  node.colors=x$node.colors,
+                  node.labels=x$node.labels,
+                  node.texts=x$node.texts,
+                  branch.texts=x$branch.texts,
                   stringsAsFactors=FALSE)
   d <- rbind(setNames(
-    data.frame('Y', 0, x$trunk.height, 0, 0, 0, 0, x$trunk.height, 
+    data.frame('Y', 0, x$trunk.height, 0, 0, 0, 0, x$trunk.height, trunk.color,
+               trunk.node.color, trunk.node.label, trunk.node.text, trunk.text,
                stringsAsFactors=FALSE), 
     names(d)), d)
   class(d) <- c('plant', 'data.frame')
