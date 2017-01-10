@@ -59,13 +59,18 @@
 #
 # Dec.7,2016: code altered by hdng to allow for germinating tree for clonal evolution
 #
-germinate <- function(x, angle=15, trunk.width=20, left='1', right='2',
+germinate <- function(x, angle=15, trunk.width=20, middle='0', left='1', right='2',
                       left2 = '3', right2 = '4', left3 = '5', right3 = '6',
                       plot=FALSE, ...) {
   
   #if(is(x, 'seed')) {
     trunk.color = x$branch.colors[1]
     trunk.node.color = x$node.colors[1]
+    trunk.node.border.color = x$node.border.colors[1]
+    trunk.node.border.width = x$node.border.widths[1]
+    trunk.border.color = x$branch.border.colors[1]
+    trunk.border.linetype = x$branch.border.linetypes[1]
+    trunk.border.width = x$branch.border.widths[1]
     trunk.node.label = x$node.labels[1]
     trunk.node.text = x$node.texts[1]
     trunk.text = x$branch.texts[1]
@@ -73,7 +78,12 @@ germinate <- function(x, angle=15, trunk.width=20, left='1', right='2',
               branches=x$branches[-1],
               lengths=x$lengths[-1],
               branch.colors=x$branch.colors[-1],
+              branch.border.colors=x$branch.border.colors[-1],
+              branch.border.linetypes=x$branch.border.linetypes[-1],
+              branch.border.widths=x$branch.border.widths[-1],
               node.colors=x$node.colors[-1],
+              node.border.colors=x$node.border.colors[-1],
+              node.border.widths=x$node.border.widths[-1],
               node.labels=x$node.labels[-1],
               node.texts=x$node.texts[-1],
               branch.texts=x$branch.texts[-1])
@@ -82,28 +92,35 @@ germinate <- function(x, angle=15, trunk.width=20, left='1', right='2',
     stop('"Y" is reserved for the trunk.')
   if (any(nchar(c(left, right))) != 1 | left==right)  
     stop('left and right must be single, distinct alphanumeric characters.')
-  x$lengths <- x$lengths[order(x$branches)]
-  x$branch.colors <- x$branch.colors[order(x$branches)]
-  x$node.colors <- x$node.colors[order(x$branches)]
-  x$node.labels <- x$node.labels[order(x$branches)]
-  x$node.texts <- x$node.texts[order(x$branches)]
-  x$branch.texts <- x$branch.texts[order(x$branches)]
+  ord = order(x$branches)
+  x$lengths <- x$lengths[ord]
+  x$branch.colors <- x$branch.colors[ord]
+  x$branch.border.colors <- x$branch.border.colors[ord]
+  x$branch.border.linetypes <- x$branch.border.linetypes[ord]
+  x$branch.border.widths <- x$branch.border.widths[ord]
+  x$node.colors <- x$node.colors[ord]
+  x$node.border.colors <- x$node.border.colors[ord]
+  x$node.border.widths <- x$node.border.widths[ord]
+  x$node.labels <- x$node.labels[ord]
+  x$node.texts <- x$node.texts[ord]
+  x$branch.texts <- x$branch.texts[ord]
   x$branches <- sort(x$branches)
   x$angles <- sapply(sapply(as.character(x$branches), strsplit, ''), function(x) {
     tab <- table(x)
     #sum(c(tab[left]*-angle, tab[right]*angle), na.rm=TRUE)
     sum(c(tab[left]*-angle, tab[right]*angle,
-        tab[left2]*-0.5*angle, tab[right2]*angle*0.2,
+        tab[left2]*-0.5*angle, tab[right2]*angle*0.5,
         tab[left3]*-1.5*angle, tab[right3]*angle*1.5
         ), na.rm=TRUE)
   }, USE.NAMES=FALSE)
   y1 <- x1 <- y0 <- x0 <- rep(NA, length(x$branches))
   for (i in seq_len(length(x$branches))) {
-    if(x$branches[i] %in% c(left, right, left2, right2, left3, right3)) {
+    if(x$branches[i] %in% c(middle, left, right, left2, right2, left3, right3)) {
       x0[i] <- 0
       y0[i] <- x$trunk.height 
     } else {
       parent <- substr(x$branches[i], 1, nchar(x$branches[i])-1)
+      #cat('dbg:', parent, '---', x$branches[i], '\n')
       x0[i] <- x1[which(x$branches==parent)]
       y0[i] <- y1[which(x$branches==parent)]
     } 
@@ -116,14 +133,21 @@ germinate <- function(x, angle=15, trunk.width=20, left='1', right='2',
                   length=x$lengths,
                   angles=x$angles, x0, y0, x1, y1,
                   branch.colors=x$branch.colors,
+                  branch.border.colors=x$branch.border.colors,
+                  branch.border.linetypes=x$branch.border.linetypes,
+                  branch.border.widths=x$branch.border.widths,
                   node.colors=x$node.colors,
+                  node.border.colors=x$node.border.colors,
+                  node.border.widths=x$node.border.widths,
                   node.labels=x$node.labels,
                   node.texts=x$node.texts,
                   branch.texts=x$branch.texts,
                   stringsAsFactors=FALSE)
   d <- rbind(setNames(
-    data.frame('Y', 0, x$trunk.height, 0, 0, 0, 0, x$trunk.height, trunk.color,
-               trunk.node.color, trunk.node.label, trunk.node.text, trunk.text,
+    data.frame('Y', 0, x$trunk.height, 0, 0, 0, 0, x$trunk.height,
+               trunk.color, trunk.border.color, trunk.border.linetype, trunk.border.width,
+               trunk.node.color, trunk.node.border.color, trunk.node.border.width,
+               trunk.node.label, trunk.node.text, trunk.text,
                stringsAsFactors=FALSE), 
     names(d)), d)
   class(d) <- c('plant', 'data.frame')
