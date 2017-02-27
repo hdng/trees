@@ -9,10 +9,11 @@
 #' @return \code{NULL}
 #' @seealso \code{\link{germinate}}
 #' @export
-#' @rotation: tree rotation (1 = bottom up, -1 = topdown)
-#' values = c(0, 90, 180)
+#' @param tree.rotation: tree rotation 
+#' values = c(0, 90, 180) ~ (bottom-up, left-right, top-down)
+#' @param text.angle: text angle, if NULL then auto determine
 plot.plant <- function(x, trunk.width=20, add=FALSE,
-    rotation = 180,
+    tree.rotation=180, text.angle=NULL,
     branch.width=1, branch.text.size=0.5,
     node.size=2, node.label.size=0.75,
     node.text.size=0.5, tree.label=NULL, ...) {
@@ -20,21 +21,22 @@ plot.plant <- function(x, trunk.width=20, add=FALSE,
   # distance from node to its label
   l = max(abs(c(x$y0, x$y1)))/30
   r = 1
-  text.angle = 0
-  #print(rotation)
-  if (rotation == 90){
-    text.angle=90
+  #print(tree.rotation)
+  if (tree.rotation == 90){
+    if (is.null(text.angle)){text.angle=90}
     tmp = x$x0; x$x0=x$y0; x$y0=-tmp
     tmp = x$x1; x$x1=x$y1; x$y1=-tmp
-  }else if (rotation == 180){
+  }else if (tree.rotation == 180){
      r = -1
      x$y0 = r*x$y0; x$y1 = r*x$y1
   }
+  if (is.null(text.angle)){text.angle = 0}
+  cat('text.angle = ', text.angle, '\n')
 
   if(isTRUE(add)) {
     with(x, segments(x0, y0, x1, y1, col=colors, lwd=pmax(trunk.width/nchar(x$branches), 1), ...))
   } else {
-    if (rotation == 90){
+    if (tree.rotation == 90){
         plot(c(x$x0-2*r, x$x1+1*r), c(x$y0, x$y1), type='n', asp=1, axes=FALSE, xlab='', ylab='', ...)  
     }else{
         plot(c(x$x0, x$x1), c(x$y0, x$y1+2*r), type='n', asp=1, axes=FALSE, xlab='', ylab='', ...)  
@@ -48,15 +50,16 @@ plot.plant <- function(x, trunk.width=20, add=FALSE,
     with(x, points(x1, y1, pch=21, col=node.border.colors,
         lwd=node.border.widths,
         bg=node.colors, cex=node.size, ...)) 
-    with(x, text(x1, y1, labels=node.labels, col='black', cex=node.label.size,...))
-    if (rotation == 90){
+    with(x, text(x1, y1, labels=node.labels, col='black', cex=node.label.size, srt=text.angle, ...))
+    if (tree.rotation == 90){
         with(x, text(x1+l*r, y1, labels=node.texts, col='black', cex=node.text.size, 
             srt=text.angle, ...))
         if(!is.null(tree.label)){
             text(x$x0[1]-2*l, x$y0[1], label=tree.label, cex=node.label.size, srt=text.angle)
         }
     }else{
-        with(x, text(x1, y1+l*r, labels=node.texts, col='black', cex=node.text.size, ...)) 
+        with(x, text(x1, y1+l*r, labels=node.texts, col='black', cex=node.text.size,
+            srt=text.angle,...)) 
     }
     with(x, text((x0+x1)/2, (y0+y1)/2, labels=branch.texts, col='black',
         cex=branch.text.size, srt=text.angle, ...)) 
