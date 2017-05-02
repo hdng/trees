@@ -31,7 +31,7 @@ plot.plant <- function(x, trunk.width=20, add=FALSE,
      x$y0 = r*x$y0; x$y1 = r*x$y1
   }
   if (is.null(text.angle)){text.angle = 0}
-  cat('text.angle = ', text.angle, '\n')
+  #cat('text.angle = ', text.angle, '\n')
 
   if(isTRUE(add)) {
     with(x, segments(x0, y0, x1, y1, col=colors, lwd=pmax(trunk.width/nchar(x$branches), 1), ...))
