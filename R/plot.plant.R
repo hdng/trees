@@ -74,9 +74,9 @@ plot.plant <- function(x, trunk.width=20, add=FALSE,
 
 draw.branch <- function(x0, y0, x1, y1, w=1, border.color='black', border.linetype='solid', border.width=0.5, fill.color=NULL, ...){
     X0 = x0; Y0=y0; X1=x1; Y1=y1
-    print(w)
+    #print(w)
     w = w/2
-    cat('w===', w, '\n')
+    #cat('w===', w, '\n')
     #arrows(x0, y0, x1, y1, col='red')
     n = length(x0)
     if (length(border.color) == 1){border.color = rep(border.color, n)}
