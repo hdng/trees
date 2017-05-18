@@ -4,7 +4,7 @@ Title: Plot Trees
 Version: 0.1.3.9000
 Authors@R: as.person(c(
     "John Baumgartner <johnbaums@gmail.com> [aut, cre]", 
-    "Brodie Gaslam <brodie.gaslam@yahoo.com> [ctb]"
+    "Brodie Gaslam <brodie.gaslam@yahoo.com> [ctb]",
     "Ha X. Dang <haxdang@gmail.com> [ctb]"
   ))
 Description: Generate and manipulate tree plots. Predefined tree structures can
