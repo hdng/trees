@@ -61,6 +61,7 @@
 #
 germinate <- function(x, angle=15, trunk.width=20, middle='0', left='1', right='2',
                       left2 = '3', right2 = '4', left3 = '5', right3 = '6',
+                      left4 = '7', right4 = '8',
                       plot=FALSE, ...) {
   
   #if(is(x, 'seed')) {
@@ -110,16 +111,21 @@ germinate <- function(x, angle=15, trunk.width=20, middle='0', left='1', right='
     #sum(c(tab[left]*-angle, tab[right]*angle), na.rm=TRUE)
     sum(c(tab[left]*-angle, tab[right]*angle,
         tab[left2]*-0.5*angle, tab[right2]*angle*0.5,
-        tab[left3]*-1.5*angle, tab[right3]*angle*1.5
+        tab[left3]*-1.5*angle, tab[right3]*angle*1.5,
+        tab[left4]*-2*angle, tab[right4]*angle*2
         ), na.rm=TRUE)
   }, USE.NAMES=FALSE)
   y1 <- x1 <- y0 <- x0 <- rep(NA, length(x$branches))
   for (i in seq_len(length(x$branches))) {
-    if(x$branches[i] %in% c(middle, left, right, left2, right2, left3, right3)) {
+    if(x$branches[i] %in% c(middle, left, right, left2, right2, left3, right3, left4, right4)) {
       x0[i] <- 0
       y0[i] <- x$trunk.height 
     } else {
       parent <- substr(x$branches[i], 1, nchar(x$branches[i])-1)
+      if (is.null(parent) || length(parent) == 0){
+        message('\nERROR: Cannot generate tree, probably due to too many branches (max degree of node = 8)\n')
+        return(NULL)
+      }
       #cat('dbg:', parent, '---', x$branches[i], '\n')
       x0[i] <- x1[which(x$branches==parent)]
       y0[i] <- y1[which(x$branches==parent)]

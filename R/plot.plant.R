@@ -18,6 +18,8 @@ plot.plant <- function(x, trunk.width=20, add=FALSE,
     node.size=2, node.label.size=0.75,
     node.text.size=0.5, tree.label=NULL, ...) {
 
+  if(is.null(x)){message('ERROR: No tree to plot\n');return()}
+
   # distance from node to its label
   l = max(abs(c(x$y0, x$y1)))/30
   r = 1
